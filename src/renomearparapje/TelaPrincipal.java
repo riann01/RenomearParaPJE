@@ -10,6 +10,8 @@ import com.itextpdf.text.pdf.PdfReader;
 public class TelaPrincipal extends javax.swing.JFrame {
     
     private File arquivos[];
+    private String salvarCaminho;
+    
     public TelaPrincipal() {
         initComponents();
         java.net.URL imgURL = getClass().getResource("/imagem/img.png");
@@ -17,6 +19,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         barraProgresso.setVisible(false);
         radioJuntada.setSelected(true);
+        arquivos = new File[0];
+        
     }
     
     public void preencherLista(File arquivosAbertos[]) {
@@ -29,20 +33,18 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }
     
     public String[] retornarExtensoes(File arquivos[]) {
-        boolean flag = false;
         String[] nomes = new String[arquivos.length];
         for (int i = 0; i < arquivos.length; i++) {
             nomes[i] = "";
-            for (int j = 0; j < arquivos[i].getName().length(); j++) {
-                if (arquivos[i].getName().charAt(j) == '.' || flag) {
-                    nomes[i] = nomes[i] + arquivos[i].getName().charAt(j);
-                    System.out.println(arquivos[i].getName().charAt(j));
-                    flag = true;
-                }
-                else {
+            for (int j = arquivos[i].getName().length() - 1; j > 0; j--) {
+                if (arquivos[i].getName().charAt(j) == '.') {
                     break;
                 }
+                else {
+                    nomes[i] = nomes[i] + arquivos[i].getName().charAt(j);
+                }
             }
+            nomes[i] = reverso(nomes[i]);
         }
         return nomes;
     }
@@ -64,18 +66,46 @@ public class TelaPrincipal extends javax.swing.JFrame {
         return nomes;
     }
     
-    public void criarDiretorio() {
-        String diretorioCriar = getArquivos()[0].getAbsolutePath();
-        for (int i = 0; i < diretorioCriar.length(); i++) {
-            
+    public void criarDiretorio(String caminho) {
+        String nomeArquivo = "";
+        for (int i = caminho.length() - 1; i > 0; i--) {
+            if (caminho.charAt(i) == '\\') {
+                break;
+            }
+            else {
+                nomeArquivo = nomeArquivo + caminho.charAt(i);
+            }
         }
+        nomeArquivo = reverso(nomeArquivo);
+        caminho = caminho.replaceFirst(nomeArquivo, "");
+        caminho = caminho + "Arquivos Renomeados";
+        salvarCaminho = caminho;
         try {
-            File diretorio = new File(diretorioCriar);
+            File diretorio = new File(caminho);
             diretorio.mkdir();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             JOptionPane.showMessageDialog(null, "Erro", "Erro ao criar o diretório", JOptionPane.ERROR_MESSAGE);
             System.out.println(ex);
         }
+    }
+    
+    public String reverso(String string) {
+        String reverso = "";
+        for (int i = string.length() - 1; i > -1; i--) {
+            reverso = reverso + string.charAt(i);
+        }
+        return reverso;
+    }
+    
+    public void limparLista() {
+        listaArquivosAbertos.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Nenhum arquivo" };
+            @Override
+            public int getSize() { return strings.length; }
+            @Override
+            public String getElementAt(int i) { return strings[i]; }
+        });
     }
     
     public void setArquivos(File arquivos[]) {
@@ -145,6 +175,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jLabel3.setText("<html><body><center>Nota: Marque um \"x\" onde deseja que a numeração mude.<br/>\nObs.: Este utilitário funciona somente com um tópico por vez.</center></body></html>");
 
         comboNome.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Usar nome diferente", "Certidao", "Fotografia", "Outros documentos" }));
+        comboNome.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboNomeActionPerformed(evt);
+            }
+        });
 
         jLabel4.setText("Nome");
 
@@ -322,12 +357,12 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_menuAbrirActionPerformed
 
     private void btnRenomearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRenomearActionPerformed
-        if (radioJuntada.isSelected()) {
+        if (radioJuntada.isSelected() && comboNome.getSelectedIndex() == 0) {
             int nomeSelecionado = comboNome.getSelectedIndex();
             if (nomeSelecionado == 0) {
                 int index;
                 String nome = textFieldNumeracao.getText();
-                if (labelNumArqAbertos.getText().charAt(0) == '0') {
+                if (getArquivos().length == 0) {
                     JOptionPane.showMessageDialog(null, "Nenhum arquivo foi carregado", "Erro ao renomear os arquivos", JOptionPane.ERROR_MESSAGE);
                 }
                 else {
@@ -338,16 +373,29 @@ public class TelaPrincipal extends javax.swing.JFrame {
                     else {
                         String extensoes[] = retornarExtensoes(getArquivos());
                         String nomes[] = new String[extensoes.length];
-                        for (int i = 0; i < nomes.length; i++) {
+                        criarDiretorio(caminho);
+                        System.out.println(getArquivos().length + "FORAM CARREGADOS!!!!!!!!!!");
+                        for (int i = 0; i < getArquivos().length; i++) {
                             nomes[i] = nome.replaceFirst("x", (i+1) + "");
-                            System.out.println(getArquivos()[i].getAbsolutePath());
-                            System.out.println(nomes[i] + extensoes[i]);
+                            System.out.println(nomes[i] + "." + extensoes[i]);
+                            getArquivos()[i].renameTo(new File(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]));
+                            System.out.println(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]);
                         }
+                        JOptionPane.showMessageDialog(null, "Renomear arquivos", "Os seus arquivos foram renomeados conforme os parâmetros especificados", JOptionPane.INFORMATION_MESSAGE);
+                        arquivos = new File[0];
+                        limparLista();
+                        labelNumArqAbertos.setText("0 Arquivos atualmente abertos");
                     }
                 }
             }
         }
     }//GEN-LAST:event_btnRenomearActionPerformed
+
+    private void comboNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboNomeActionPerformed
+        if (comboNome.getSelectedIndex() != 0) {
+            
+        }
+    }//GEN-LAST:event_comboNomeActionPerformed
 
     public static void main(String args[]) {
         try {
