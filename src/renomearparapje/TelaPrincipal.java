@@ -6,6 +6,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.ListModel;
 import com.itextpdf.text.pdf.PdfReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TelaPrincipal extends javax.swing.JFrame {
     
@@ -108,6 +113,32 @@ public class TelaPrincipal extends javax.swing.JFrame {
         });
     }
     
+    public boolean verificarPdf(String extensoes[]) {
+        for (int i = 0; i < extensoes.length; i++) {
+            if (!extensoes[i].equalsIgnoreCase("pdf")) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    private int qtdPaginas(File arquivo) throws FileNotFoundException, IOException {
+        byte[] bytesArray = new byte[(int) arquivo.length()]; 
+        FileInputStream fis = new FileInputStream(arquivo);
+        fis.read(bytesArray);
+        fis.close();
+        int qtPaginas = 0;
+	PdfReader pdfReader;
+	try {
+            pdfReader = new PdfReader(bytesArray);
+            qtPaginas = pdfReader.getNumberOfPages();
+        }
+        catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Erro ao processar o arquivo PDF, tavez este esteja corrompido.", "Erro ao processar Arquivo", JOptionPane.ERROR_MESSAGE);
+	}
+	return qtPaginas;
+    }
+    
     public void setArquivos(File arquivos[]) {
         this.arquivos = arquivos;
     }
@@ -127,7 +158,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         radioJuntada = new javax.swing.JRadioButton();
         radioDigital = new javax.swing.JRadioButton();
-        jCheckBox1 = new javax.swing.JCheckBox();
+        checkAlterarSomenteNumeracao = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
         comboNome = new javax.swing.JComboBox<>();
         jLabel4 = new javax.swing.JLabel();
@@ -168,8 +199,18 @@ public class TelaPrincipal extends javax.swing.JFrame {
         });
 
         radioDigital.setText("Digitalização de Processo Físico");
+        radioDigital.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                radioDigitalActionPerformed(evt);
+            }
+        });
 
-        jCheckBox1.setText("Alterar Somente a Numeração");
+        checkAlterarSomenteNumeracao.setText("Alterar Somente a Numeração");
+        checkAlterarSomenteNumeracao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                checkAlterarSomenteNumeracaoActionPerformed(evt);
+            }
+        });
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel3.setText("<html><body><center>Nota: Marque um \"x\" onde deseja que a numeração mude.<br/>\nObs.: Este utilitário funciona somente com um tópico por vez.</center></body></html>");
@@ -203,7 +244,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jCheckBox1)
+                .addComponent(checkAlterarSomenteNumeracao)
                 .addGap(72, 72, 72))
             .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
         );
@@ -215,7 +256,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
                     .addComponent(radioJuntada)
                     .addComponent(radioDigital))
                 .addGap(18, 18, 18)
-                .addComponent(jCheckBox1)
+                .addComponent(checkAlterarSomenteNumeracao)
                 .addGap(13, 13, 13)
                 .addComponent(jLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -381,7 +422,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
                             getArquivos()[i].renameTo(new File(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]));
                             System.out.println(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]);
                         }
-                        JOptionPane.showMessageDialog(null, "Renomear arquivos", "Os seus arquivos foram renomeados conforme os parâmetros especificados", JOptionPane.INFORMATION_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "Os seus arquivos foram renomeados conforme os parâmetros especificados", "Renomear arquivos", JOptionPane.INFORMATION_MESSAGE);
                         arquivos = new File[0];
                         limparLista();
                         labelNumArqAbertos.setText("0 Arquivos atualmente abertos");
@@ -389,13 +430,69 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 }
             }
         }
+        if (radioDigital.isSelected() && checkAlterarSomenteNumeracao.isSelected()) {
+            String extensoes[] = retornarExtensoes(getArquivos());
+            String nomes[] = retornarNomes(getArquivos());
+            String caminho = getArquivos()[0].getPath();
+            int index = 0, numero = Integer.parseInt(textFieldNumeracao.getText());
+            if (verificarPdf(extensoes)) {
+                JOptionPane.showMessageDialog(null, "Todos os arquivos carregados são pdf.", "Informação", JOptionPane.INFORMATION_MESSAGE);
+                System.out.println("Todos os arquivos são PDF.");
+                criarDiretorio(caminho);
+                for (int i = 0; i < nomes.length; i++) {
+                    /*try {
+                        JOptionPane.showMessageDialog(null, "O arquivo " + getArquivos()[i].getName() + " possui " + qtdPaginas(getArquivos()[i]) + " páginas.", 
+                        "Informação", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    catch (IOException ex) {
+                        Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    }*/
+                    for (int j = 0; j < nomes[i].length(); j++) {
+                        if (nomes[i].charAt(j) == '_') {
+                            index = j+1;
+                            break;
+                        }
+                    }
+                    nomes[i] = numero + "_" + nomes[i].substring(index);
+                    try {
+                        numero = numero + qtdPaginas(getArquivos()[i]);
+                    }
+                    catch (IOException ex) {
+                        Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    System.out.println("NOME DO ARQUIVO É: " + nomes[i]);
+                    getArquivos()[i].renameTo(new File(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]));
+                    System.out.println(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]);
+                }
+                JOptionPane.showMessageDialog(null, "Os seus arquivos foram renomeados conforme os parâmetros especificados", "Renomear arquivos", JOptionPane.INFORMATION_MESSAGE);
+                arquivos = new File[0];
+                limparLista();
+                labelNumArqAbertos.setText("0 Arquivos atualmente abertos");
+            }
+        }
     }//GEN-LAST:event_btnRenomearActionPerformed
 
     private void comboNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboNomeActionPerformed
-        if (comboNome.getSelectedIndex() != 0) {
-            
-        }
+        
     }//GEN-LAST:event_comboNomeActionPerformed
+
+    private void radioDigitalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioDigitalActionPerformed
+        if (radioDigital.isSelected() && checkAlterarSomenteNumeracao.isSelected()) {
+            comboNome.setEnabled(false);
+        }
+        else {
+            comboNome.setEnabled(true);
+        }
+    }//GEN-LAST:event_radioDigitalActionPerformed
+
+    private void checkAlterarSomenteNumeracaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkAlterarSomenteNumeracaoActionPerformed
+        if (radioDigital.isSelected() && checkAlterarSomenteNumeracao.isSelected()) {
+            comboNome.setEnabled(false);
+        }
+        else {
+            comboNome.setEnabled(true);
+        }
+    }//GEN-LAST:event_checkAlterarSomenteNumeracaoActionPerformed
 
     public static void main(String args[]) {
         try {
@@ -429,8 +526,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnRenomear;
     private javax.swing.JButton btnSair;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JCheckBox checkAlterarSomenteNumeracao;
     private javax.swing.JComboBox<String> comboNome;
-    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
