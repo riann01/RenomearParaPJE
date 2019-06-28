@@ -9,6 +9,7 @@ import com.itextpdf.text.pdf.PdfReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -392,6 +393,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         abrirArquivo.setMultiSelectionEnabled(true);
         abrirArquivo.showOpenDialog(null);
         File arquivosAbertos[] = abrirArquivo.getSelectedFiles();
+        Arrays.sort(arquivosAbertos, new Comparador());
         preencherLista(arquivosAbertos);
         labelNumArqAbertos.setText(arquivosAbertos.length + " Arquivos atualmente abertos");
         setArquivos(arquivosAbertos);
