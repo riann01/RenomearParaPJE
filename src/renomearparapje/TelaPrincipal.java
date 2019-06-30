@@ -172,7 +172,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         menuAbrir = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
+        menuSair = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem2 = new javax.swing.JMenuItem();
@@ -300,13 +300,13 @@ public class TelaPrincipal extends javax.swing.JFrame {
         });
         jMenu1.add(menuAbrir);
 
-        jMenuItem4.setText("Sair");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+        menuSair.setText("Sair");
+        menuSair.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
+                menuSairActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem4);
+        jMenu1.add(menuSair);
 
         jMenuBar1.add(jMenu1);
 
@@ -400,13 +400,18 @@ public class TelaPrincipal extends javax.swing.JFrame {
         abrirArquivo.setMultiSelectionEnabled(true);
         abrirArquivo.showOpenDialog(null);
         File arquivosAbertos[] = abrirArquivo.getSelectedFiles();
-        Arrays.sort(arquivosAbertos, new Comparador());
+        if (radioDigital.isSelected()) {
+            Arrays.sort(arquivosAbertos, new Comparador());
+        }
         preencherLista(arquivosAbertos);
         labelNumArqAbertos.setText(arquivosAbertos.length + " Arquivos atualmente abertos");
         setArquivos(arquivosAbertos);
     }//GEN-LAST:event_menuAbrirActionPerformed
 
     private void btnRenomearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRenomearActionPerformed
+        int numArquivos = getArquivos().length;
+        barraProgresso.setMaximum(numArquivos);
+        barraProgresso.setVisible(true);
         if (radioJuntada.isSelected() && comboNome.getSelectedIndex() == 0) {
             int nomeSelecionado = comboNome.getSelectedIndex();
             if (nomeSelecionado == 0) {
@@ -426,9 +431,9 @@ public class TelaPrincipal extends javax.swing.JFrame {
                         System.out.println(getArquivos().length + "FORAM CARREGADOS!!!!!!!!!!");
                         for (int i = 0; i < getArquivos().length; i++) {
                             nomes[i] = nome.replaceFirst("x", (i+1) + "");
-                            System.out.println(nomes[i] + "." + extensoes[i]);
                             getArquivos()[i].renameTo(new File(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]));
-                            System.out.println(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]);
+                            barraProgresso.setValue(i + 1);
+                            barraProgresso.updateUI();
                         }
                         JOptionPane.showMessageDialog(null, "Os seus arquivos foram renomeados conforme os parâmetros especificados", "Renomear arquivos", JOptionPane.INFORMATION_MESSAGE);
                         arquivos = new File[0];
@@ -464,6 +469,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
                     System.out.println("NOME DO ARQUIVO É: " + nomes[i]);
                     getArquivos()[i].renameTo(new File(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]));
                     System.out.println(salvarCaminho + "\\" + nomes[i] + "." + extensoes[i]);
+                    barraProgresso.setValue(i + 1);
+                   barraProgresso.updateUI();
                 }
                 JOptionPane.showMessageDialog(null, "Os seus arquivos foram renomeados conforme os parâmetros especificados", "Renomear arquivos", JOptionPane.INFORMATION_MESSAGE);
                 arquivos = new File[0];
@@ -495,12 +502,12 @@ public class TelaPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_checkAlterarSomenteNumeracaoActionPerformed
 
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+    private void menuSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuSairActionPerformed
         int retorno = JOptionPane.showConfirmDialog(null, "Deseja realmente sair?", "Sair do utilitário", JOptionPane.YES_NO_OPTION);
         if (retorno == 0) {
             System.exit(0);
         }
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
+    }//GEN-LAST:event_menuSairActionPerformed
 
     public static void main(String args[]) {
         try {
@@ -544,13 +551,13 @@ public class TelaPrincipal extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelImg;
     private javax.swing.JLabel labelNumArqAbertos;
     private javax.swing.JList<String> listaArquivosAbertos;
     private javax.swing.JMenuItem menuAbrir;
+    private javax.swing.JMenuItem menuSair;
     private javax.swing.JRadioButton radioDigital;
     private javax.swing.JRadioButton radioJuntada;
     private javax.swing.JTextField textFieldNumeracao;
