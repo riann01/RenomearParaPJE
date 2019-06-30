@@ -192,6 +192,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "<html><body><center>Opções de Nomeação</center></body></html>", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
 
+        buttonGroup1.add(radioJuntada);
         radioJuntada.setText("Juntada");
         radioJuntada.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -199,6 +200,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
             }
         });
 
+        buttonGroup1.add(radioDigital);
         radioDigital.setText("Digitalização de Processo Físico");
         radioDigital.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -299,6 +301,11 @@ public class TelaPrincipal extends javax.swing.JFrame {
         jMenu1.add(menuAbrir);
 
         jMenuItem4.setText("Sair");
+        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem4ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem4);
 
         jMenuBar1.add(jMenu1);
@@ -377,7 +384,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void radioJuntadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioJuntadaActionPerformed
-        // TODO add your handling code here:
+        //checkAlterarSomenteNumeracao.setEnabled(false);
     }//GEN-LAST:event_radioJuntadaActionPerformed
 
     private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
@@ -403,7 +410,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
         if (radioJuntada.isSelected() && comboNome.getSelectedIndex() == 0) {
             int nomeSelecionado = comboNome.getSelectedIndex();
             if (nomeSelecionado == 0) {
-                int index;
                 String nome = textFieldNumeracao.getText();
                 if (getArquivos().length == 0) {
                     JOptionPane.showMessageDialog(null, "Nenhum arquivo foi carregado", "Erro ao renomear os arquivos", JOptionPane.ERROR_MESSAGE);
@@ -442,13 +448,6 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 System.out.println("Todos os arquivos são PDF.");
                 criarDiretorio(caminho);
                 for (int i = 0; i < nomes.length; i++) {
-                    /*try {
-                        JOptionPane.showMessageDialog(null, "O arquivo " + getArquivos()[i].getName() + " possui " + qtdPaginas(getArquivos()[i]) + " páginas.", 
-                        "Informação", JOptionPane.INFORMATION_MESSAGE);
-                    }
-                    catch (IOException ex) {
-                        Logger.getLogger(TelaPrincipal.class.getName()).log(Level.SEVERE, null, ex);
-                    }*/
                     for (int j = 0; j < nomes[i].length(); j++) {
                         if (nomes[i].charAt(j) == '_') {
                             index = j+1;
@@ -495,6 +494,13 @@ public class TelaPrincipal extends javax.swing.JFrame {
             comboNome.setEnabled(true);
         }
     }//GEN-LAST:event_checkAlterarSomenteNumeracaoActionPerformed
+
+    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+        int retorno = JOptionPane.showConfirmDialog(null, "Deseja realmente sair?", "Sair do utilitário", JOptionPane.YES_NO_OPTION);
+        if (retorno == 0) {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     public static void main(String args[]) {
         try {
