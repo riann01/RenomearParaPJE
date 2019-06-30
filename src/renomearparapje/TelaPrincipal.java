@@ -25,8 +25,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         barraProgresso.setVisible(false);
         radioJuntada.setSelected(true);
+        checkAlterarSomenteNumeracao.setEnabled(false);
         arquivos = new File[0];
-        
     }
     
     public void preencherLista(File arquivosAbertos[]) {
@@ -380,11 +380,12 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        // TODO add your handling code here:
+        new Sobre().setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void radioJuntadaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioJuntadaActionPerformed
-        //checkAlterarSomenteNumeracao.setEnabled(false);
+        checkAlterarSomenteNumeracao.setSelected(false);
+        checkAlterarSomenteNumeracao.setEnabled(false);
     }//GEN-LAST:event_radioJuntadaActionPerformed
 
     private void btnSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSairActionPerformed
@@ -478,6 +479,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
                 labelNumArqAbertos.setText("0 Arquivos atualmente abertos");
             }
         }
+        barraProgresso.setVisible(false);
     }//GEN-LAST:event_btnRenomearActionPerformed
 
     private void comboNomeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboNomeActionPerformed
@@ -485,6 +487,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_comboNomeActionPerformed
 
     private void radioDigitalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_radioDigitalActionPerformed
+        checkAlterarSomenteNumeracao.setEnabled(true);
         if (radioDigital.isSelected() && checkAlterarSomenteNumeracao.isSelected()) {
             comboNome.setEnabled(false);
         }

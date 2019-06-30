@@ -195,7 +195,7 @@
                   <Component id="checkAlterarSomenteNumeracao" min="-2" max="-2" attributes="0"/>
                   <EmptySpace min="-2" pref="72" max="-2" attributes="0"/>
               </Group>
-              <Component id="jLabel3" alignment="1" pref="323" max="32767" attributes="0"/>
+              <Component id="jLabel3" alignment="1" pref="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
